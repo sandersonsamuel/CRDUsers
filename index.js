@@ -19,19 +19,21 @@ function getUsers(){
         querySnapshot.forEach((element) => {
             index += 1
             const data = element.data()
-            data.id = element.id
-            apiCard.innerHTML += `
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6>Usuário ${index}</h6>
-                        <ul class="list-unstyled">
-                            <li>User: ${data.user}</li>
-                            <li>Email: ${data.email}</li>
-                        </ul>
+            if (data != null){
+                data.id = element.id
+                apiCard.innerHTML += `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6>Usuário ${index}</h6>
+                            <ul class="list-unstyled">
+                                <li>User: ${data.user}</li>
+                                <li>Email: ${data.email}</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-danger btn-sm h-25" onclick="deleteUser('${data.id}', '${data.password}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
-                    <button class="btn btn-danger btn-sm h-25" onclick="deleteUser('${data.id}')"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `
+                `
+            }
         });
     })
 
@@ -63,16 +65,23 @@ function addNewUser(event){
 
 }
 
-function deleteUser(id){
+function deleteUser(id, password){
 
-    db.collection("users").doc(id).delete()
-    .then(()=>{
-        console.log("Documento deletado com sucesso!");
-        getUsers()
-    })
-    .catch((error)=>{
-        console.log("Falha ao deletar o arquivo!", error);
-    })
+    senha = prompt("Digite a senha da conta para excluí-la")
+
+    if (senha == password){
+        db.collection("users").doc(id).delete()
+        .then(()=>{
+            console.log("Documento deletado com sucesso!");
+            getUsers()
+        })
+        .catch((error)=>{
+            console.log("Falha ao deletar o arquivo!", error);
+        })
+    }
+    else{
+        alert("Senha incorreta")
+    }
     
 }
 
