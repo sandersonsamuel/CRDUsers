@@ -1,33 +1,41 @@
-url = "https://toy-store-json.vercel.app/users/"
+const firebaseConfig = {
+    apiKey: "AIzaSyAJemYZsgjISzYRq996p1nThgYz1gR-eVM",
+    authDomain: "flowing-encoder-394417.firebaseapp.com",
+    projectId: "flowing-encoder-394417",
+    storageBucket: "flowing-encoder-394417.appspot.com",
+    messagingSenderId: "1064433201566",
+    appId: "1:1064433201566:web:72670e24b811b9d5af268f"
+};  
+  
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 function getUsers(){
 
+    var index = 0 
     apiCard.innerHTML = " "
 
-    axios.get(url)
-    .then(response =>{
-        const data = response.data
-        data.map((user, index)=>{
+    db.collection("users").get().then((querySnapshot) =>{
+        querySnapshot.forEach((element) => {
+            index += 1
+            const data = element.data()
+            data.id = element.id
             apiCard.innerHTML += `
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h6>Usuário ${index + 1}</h6>
+                        <h6>Usuário ${index}</h6>
                         <ul class="list-unstyled">
-                            <li>User: ${user.user}</li>
-                            <li>Email: ${user.email}</li>
+                            <li>User: ${data.user}</li>
+                            <li>Email: ${data.email}</li>
                         </ul>
                     </div>
-                    <button class="btn btn-danger btn-sm h-25" onclick="deleteUser(${user.id})"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn btn-danger btn-sm h-25" onclick="deleteUser('${data.id}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `
-        })
-    })
-    .catch(error => {
-        console.log(error);
+        });
     })
 
 }
-getUsers()
 
 function addNewUser(event){
 
@@ -39,14 +47,13 @@ function addNewUser(event){
         password: senha.value
     }
 
-    axios.post(url, newUser)
-    .then(response=>{
-        console.log(response);
+    db.collection("users").add(newUser)
+    .then((response)=>{
+        console.log(response)
         getUsers()
     })
-    .catch(error=>{
+    .catch((error)=>{
         console.log(error);
-        getUsers()
     })
 
     
@@ -56,14 +63,17 @@ function addNewUser(event){
 
 }
 
-function deleteUser(id) {
-    axios.delete(url+id)
-    .then(response=>{
-        console.log(response);
+function deleteUser(id){
+
+    db.collection("users").doc(id).delete()
+    .then(()=>{
+        console.log("Documento deletado com sucesso!");
         getUsers()
     })
-    .catch(error=>{
-        console.log(error);
-        getUsers()
+    .catch((error)=>{
+        console.log("Falha ao deletar o arquivo!", error);
     })
+    
 }
+
+getUsers()
